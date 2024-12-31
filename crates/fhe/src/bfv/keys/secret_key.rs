@@ -25,6 +25,24 @@ pub struct SecretKey {
 }
 
 impl SecretKey {
+    /// only calculate c0 + c1*s and return the result poly
+    pub fn try_phase(&self, ct: &Ciphertext) -> Result<Poly> {
+        let mut s = Poly::try_convert_from(
+            self.coeffs.as_ref(),
+            ct[0].ctx(),
+            false,
+            Representation::PowerBasis,
+        )?;
+
+        s.change_representation(Representation::Ntt);
+        let mut b = ct[0].clone();
+        let mut a_mul_s = ct[1].clone();
+        a_mul_s *= &s;
+        b += &a_mul_s;
+        
+        Ok(b)
+    }
+
     /// Generate a random [`SecretKey`].
     pub fn random<R: RngCore + CryptoRng>(par: &Arc<BfvParameters>, rng: &mut R) -> Self {
         let s_coefficients = sample_vec_cbd(par.degree(), par.variance, rng).unwrap();

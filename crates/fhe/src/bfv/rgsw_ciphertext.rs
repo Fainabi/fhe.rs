@@ -10,17 +10,32 @@ use fhe_traits::{
 };
 use prost::Message;
 use rand::{CryptoRng, RngCore};
-use zeroize::Zeroizing;
+use zeroize::{Zeroize, Zeroizing};
 
 use super::{
     keys::KeySwitchingKey, traits::TryConvertFrom, BfvParameters, Ciphertext, Plaintext, SecretKey,
 };
 
 /// A RGSW ciphertext encrypting a plaintext.
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct RGSWCiphertext {
     ksk0: KeySwitchingKey,
     ksk1: KeySwitchingKey,
+}
+
+impl RGSWCiphertext {
+    /// clear the body to zero for computing the masks of external product
+    pub fn zeroize_body(&mut self) {
+        // (c0, c1) * (1, s)
+        self.ksk0.c0.zeroize();
+        self.ksk1.c0.zeroize();
+    }
+
+    /// clear the mask to zero for computing the rest of external product
+    pub fn zeroize_mask(&mut self) {
+        self.ksk0.c1.zeroize();
+        self.ksk1.c1.zeroize();
+    }
 }
 
 impl FheParametrized for RGSWCiphertext {

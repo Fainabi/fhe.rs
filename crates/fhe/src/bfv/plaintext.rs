@@ -38,7 +38,8 @@ impl FhePlaintext for Plaintext {
 }
 
 impl Plaintext {
-    pub(crate) fn to_poly(&self) -> Poly {
+    /// extract the polynomial representation of a plaintext
+    pub fn to_poly(&self) -> Poly {
         let mut m_v = Zeroizing::new(self.value.clone());
         self.par
             .plaintext

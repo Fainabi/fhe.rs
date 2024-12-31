@@ -16,7 +16,7 @@ use crate::{Error, Result};
 pub use context::Context;
 use fhe_util::sample_vec_cbd;
 use itertools::{izip, Itertools};
-use ndarray::{s, Array2, ArrayView2, Axis};
+use ndarray::{s, Array2, ArrayView2, ArrayViewMut2, Axis};
 pub use ops::dot_product;
 use rand::{CryptoRng, RngCore, SeedableRng};
 use rand_chacha::ChaCha8Rng;
@@ -307,6 +307,11 @@ impl Poly {
     /// Access the polynomial coefficients in RNS representation.
     pub fn coefficients(&self) -> ArrayView2<u64> {
         self.coefficients.view()
+    }
+
+    /// Access the mutable polynomial coefficients in RNS representation.
+    pub fn coefficients_mut(&mut self) -> ArrayViewMut2<u64> {
+        self.coefficients.view_mut()
     }
 
     /// Computes the forward Ntt on the coefficients
